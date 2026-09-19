@@ -54,7 +54,7 @@ async function getRecentRepoData(repo) {
             });
         }
     }
-
+    
     return [...repos];
 }
 
@@ -63,6 +63,8 @@ app.command("/git-summaries-ping", async({command, ack, respond}) => {
     await ack();
     const latency = Date.now() - start;
     await respond({text: `Pong!\nLatency: ${latency}ms`});
+
+    console.log(`Ping command sent at ${Date(Date.now()).toString()}`)
 });
 
 app.command("/git-summaries-user", async({command, client, ack, respond}) => {
@@ -93,6 +95,7 @@ app.command("/git-summaries-user", async({command, client, ack, respond}) => {
     } else {
         await respond({text: "No GitHub Account Connected!"})
     }
+    console.log(`GitHub user command set at ${Date(Date.now()).toString()}`)
 });
 
 app.command("/git-summaries-repo", async({command, ack, respond}) => {
@@ -106,6 +109,7 @@ app.command("/git-summaries-repo", async({command, ack, respond}) => {
         : '_No activity found in the last 30 days_';
 
     await respond({text: `Repo: https://github.com/${repoName}\n\nRecent Activity (30 Days):\n${activityStr}`});
+    console.log(`GitHub repo command sent at ${Date(Date.now()).toString()}`)
 });
 
 (async() => {
