@@ -1,7 +1,7 @@
-import "dotenv/config";
+require("dotenv").config();
 
-import { App } from "@slack/bolt";
-import { VercelReceiver, createHandler } from "@vercel/slack-bolt";
+const { App } = require("@slack/bolt");
+const { VercelReceiver, createHandler } = require("@vercel/slack-bolt");
 const receiver = new VercelReceiver();
 
 const app = new App({
