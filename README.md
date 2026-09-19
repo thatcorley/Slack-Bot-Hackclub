@@ -1,4 +1,4 @@
-# Re:OS
+# Github Slack Hackclub
 
 View GitHub activity on Slack.
 
