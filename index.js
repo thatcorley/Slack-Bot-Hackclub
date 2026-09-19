@@ -121,4 +121,4 @@ app.command("/git-summaries-repo", async({command, ack, respond}) => {
 
 // export {app, receiver};
 
-export const POST = createHandler(app, receiver)
+module.exports.POST = createHandler(app, receiver)
