@@ -1,16 +1,11 @@
 require("dotenv").config();
 
-const { App } = require("@slack/bolt");
-const { VercelReceiver, createHandler } = require("@vercel/slack-bolt");
-const receiver = new VercelReceiver();
+const {App} = require("@slack/bolt");
 
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
     appToken: process.env.SLACK_APP_TOKEN,
-    signingSecret: process.env.SLACK_SIGNING_SECRET,
-    receiver,
-    deferInitialization: true,
-    socketMode: false
+    socketMode: true
 })
 
 async function getRecentRepos(user) {
@@ -29,11 +24,38 @@ async function getRecentRepos(user) {
         if (new Date(event.created_at).getTime() < cut) continue;
 
         if (['PushEvent', 'PullRequestEvent', 'IssuesEvent', 'CreateEvent'].includes(event.type)) {
-        repos.add(event.repo.name);
+            repos.add(event.repo.name);
         }
     }
 
-        return [...repos];
+    return [...repos];
+}
+
+async function getRecentRepoData(repo) {
+    const gitData = await fetch(`https://api.github.com/repos/${repo}/events`, {
+        headers: {
+            'Accept': 'application/vnd.github+json',
+            'User-Agent': 'git-summaries'
+        }
+    })
+
+    const events = await gitData.json();
+    const cut = Date.now() - (30 * 24 * 60 * 60 * 1000)
+
+    const repos = new Set();
+    for (const event of events) {
+        if (new Date(event.created_at).getTime() < cut) continue;
+
+        if (['PushEvent', 'PullRequestEvent', 'IssuesEvent', 'CreateEvent'].includes(event.type)) {
+            repos.add({
+                type: event.type,
+                actor: event.actor.login,
+                created_at: event.created_at
+            });
+        }
+    }
+
+    return [...repos];
 }
 
 app.command("/git-summaries-ping", async({command, ack, respond}) => {
@@ -43,7 +65,7 @@ app.command("/git-summaries-ping", async({command, ack, respond}) => {
     await respond({text: `Pong!\nLatency: ${latency}ms`});
 });
 
-app.command("/git-summaries-activity", async({command, client, ack, respond}) => {
+app.command("/git-summaries-user", async({command, client, ack, respond}) => {
     await ack();
     const userParam = command.text.trim();
 
@@ -71,16 +93,22 @@ app.command("/git-summaries-activity", async({command, client, ack, respond}) =>
     } else {
         await respond({text: "No GitHub Account Connected!"})
     }
-
-    
 });
 
-// (async() => {
-//     await app.init();
-//     await app.start();
-//     console.log("Bot Running!")
-// })();
+app.command("/git-summaries-repo", async({command, ack, respond}) => {
+    await ack();
+    const repoName = command.text.trim();
 
-// export {app, receiver};
+    const repoActivity = await getRecentRepoData(repoName);
 
-module.exports.POST = createHandler(app, receiver)
+    const activityStr = repoActivity.length
+        ? repoActivity.map(e => `• *${e.type}* by ${e.actor}`).join('\n')
+        : '_No activity found in the last 30 days_';
+
+    await respond({text: `Repo: https://github.com/${repoName}\n\nRecent Activity (30 Days):\n${activityStr}`});
+});
+
+(async() => {
+    await app.start();
+    console.log("Bot Running!")
+})();
