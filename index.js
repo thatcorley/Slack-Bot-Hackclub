@@ -1,7 +1,7 @@
 require("dotenv").config();
 
-const {App} = require("@slack/bolt");
-const {VercelReceiver} = require("@vercel/slack-bolt")
+import { App } from "@slack/bolt";
+import { VercelReceiver } from "@vercel/slack-bolt";
 const receiver = new VercelReceiver();
 
 const app = new App({
@@ -113,8 +113,12 @@ app.command("/git-summaries-repo", async({command, ack, respond}) => {
     await respond({text: `Repo: https://github.com/${repoName}\n\nRecent Activity (30 Days):\n${activityStr}`});
 });
 
-(async() => {
-    await app.init()
-    await app.start();
-    console.log("Bot Running!")
-})();
+// (async() => {
+//     await app.init();
+//     await app.start();
+//     console.log("Bot Running!")
+// })();
+
+// export {app, receiver};
+
+export const POST = createHandler(app, receiver)
