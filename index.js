@@ -1,11 +1,16 @@
 require("dotenv").config();
 
 const {App} = require("@slack/bolt");
+const {VercelReceiver} = require("@vercel/slack-bolt")
+const receiver = new VercelReceiver();
 
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
     appToken: process.env.SLACK_APP_TOKEN,
-    socketMode: true
+    signingSecret: process.env.SLACK_SIGNING_SECRET,
+    receiver,
+    deferInitialization: true,
+    socketMode: false
 })
 
 async function getRecentRepos(user) {
@@ -109,6 +114,7 @@ app.command("/git-summaries-repo", async({command, ack, respond}) => {
 });
 
 (async() => {
+    await app.init()
     await app.start();
     console.log("Bot Running!")
 })();

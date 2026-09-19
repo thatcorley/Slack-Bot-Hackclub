@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "@slack/bolt": "^5.1.0",
+    "@vercel/slack-bolt": "^1.7.0",
     "dotenv": "^17.4.2"
   }
 }
