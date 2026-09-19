@@ -8,11 +8,6 @@ A simple slack bot that will give you recent activity data on a user's GitHub. I
 
 ## Features
 
-`/git-summaries-repo [Repo Name]`
-Get recent activity from a repo
-`/git-summaries-repo [GitHub User] | [Slack User]`
-`/git-summaries-ping`
-
 | Command               | Arguments         | Description                                | Example                                   |
 | :-------------------- | :---------------- | :----------------------------------------- | :---------------------------------------- |
 | `/git-summaries-repo` | `Repo Name`       | Display recent activity from a repo        | `/git-summaries-repo thatcorley/Re-OS`    |
